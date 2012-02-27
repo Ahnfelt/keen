@@ -26,8 +26,6 @@ The compiler targets **LLVM** and **JavaScript** allowing it to be used both as 
 
 It comes with a **package system**, and a global package repository is available. When developping multiple packages, you can choose to tell the package system to always use the latest available local source code for a package, thus avoiding the busywork of having to install every time you make a change in a dependency.
 
-.. contents::
-
 Terms
 =====
 
