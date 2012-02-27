@@ -1,9 +1,9 @@
 ====
 Keen 
 ====
-------------------
-Status: vague idea
-------------------
+------------------------------------------------------------------------------------------------------
+Disclaimer: this is a design document, even if it's not written as such. No implementation exists yet.
+------------------------------------------------------------------------------------------------------
 
 Keen is a functional programming language heavily inspired by Haskell, but with a number of important differences. To summarize the language:
 
