@@ -1,0 +1,532 @@
+====
+Keen 
+====
+------------------
+Status: vague idea
+------------------
+
+Keen is a functional programming language heavily inspired by Haskell, but with a number of important differences. To summarize the language:
+
+- It's **pure**, meaning that the language offers compiler guaranteed control over side effects.
+- It's **strict**, meaning that arguments are evaluated before application, the same way it works in Java, Standard ML, and most other popular languages.
+- It's **polymorphic**, similar to how Java has **generics**, but in a much simpler, much more powerful, **higher-kinded** manner.
+- It has **type reconstruction**, meaning that you never have to give an explicit type to variables and functions, except when dealing with the most advanced features of the type system.
+- It is **functional** meaning that functions are simply values, and closures are formed by capturing variables within the lexical scope.
+- It has **pattern matching** and **algebraic datatypes** meaning that you can easily construct, make decisions on and take apart values.
+- It has **records** with **polymorphic fields**, meaning that you can pack up polymorphic values and pass them around. Unlike in Haskell, the same label name can be reused in different records.
+- It has **type classes**, meaning that you can have structured overloading, such as a ``+`` operator that does what you expect for both integers and floating point numbers.
+- It has **user defined operators**, meaning that you can define your own operators. It uses mixfix, allowing you to define operators like ``if a then b else c``. It even supports a form of **optional lazyness**. Indeed, ``if`` is provided in the standard library, and is not built into the language.
+- It has **monad comprehensions**, allowing a succinct syntax for a broad range of tasks, such as generating lists, performing side effects, and so on.
+- It has a **module system**, with very succinct syntax for importing and exporting symbols.
+- It has **macros**, allowing you to write ordinary Keen functions and use them to generate parts of your program.
+
+And that's really all there is to it. There is **no subtyping nor inheritance** to complicate matters. 
+
+The compiler targets **LLVM** and **JavaScript** allowing it to be used both as an efficient native language and within the browser.
+
+It comes with a **package system**, and a global package repository is available. When developping multiple packages, you can choose to tell the package system to always use the latest available local source code for a package, thus avoiding the busywork of having to install every time you make a change in a dependency.
+
+Examples
+========
+
+Importing symbols from a module is easy. Here we import every symbol (using the underscore as a wildcard) from the ``base`` module::
+
+    import base (_)
+
+The base module provides a range of standard functionality, such as arithmetic operators, control structures and boolean values.
+
+We can then write a ``Hello, World`` example::
+
+    main = print "Hello, World!"
+
+Note that the entry point of our program must be called ``main``. It must have the type ``IO ()`` meaning that it performs input/output and returns no interesting value.
+We can give it an explicit type like this::
+
+    : IO ()
+    main = print "Hello, World!"
+    
+The ``: t`` syntax says that "the following definition has type ``t``". Note that we don't have to give the type; the compiler can figure it out.
+
+As you can see, we don't use parenthesis and commas when applying a function. We simply write the function followed by all of its arguments.
+When defining functions, we use a similar syntax::
+
+    increase x = x + 1
+
+This defines a function that returns the successor of a integer. For example, ``increase 5 == 6``. We take ``==`` to mean equality.
+
+If we need multiple arguments, we simply list them::
+
+    max a b = if a > b then a else b
+
+If we like, we can restrict this function to work on ``Ints``::
+
+    : Int -> Int -> Int
+    max a b = if a > b then a else b
+
+You can read this as "max takes an ``Int``, and then another ``Int``, and finally produces an ``Int``". 
+In fact, what really happens here is **currying**. The arrow ``->`` is right associatve, meaning that the type we wrote down is equivalent to ``Int -> (Int -> Int)``, 
+which can be read as "max takes an ``Int``, and then produces a **function**. That function takes another ``Int`` and finally produces an ``Int``".
+
+If you're familiar with lambda calculus, you know the notation ``λx.e``. In JavaScript it's written ``function(x) { return e; }`` and in Python it's written ``lambda(x): e``.
+In Keen, since lambda functions are so common, we adobt the Haskell notation which is about as short as the original: ``\x -> e``.
+
+The definition of ``max`` above is actually syntactic sugar for the following (parenthesis added)::
+
+    max = (\a -> (\b -> (if a > b then a else b)))
+
+Note what happens when we apply ``max`` to a single argument ``0``, thus substituting ``0`` for ``a``::
+
+        max 0
+    =>  (\a -> (\b -> (if a > b then a else b))) 0
+    =>  (\b -> (if 0 > b then 0 else b)))
+
+As is evident, we end up with a function, which can also be written::
+
+    maxZero b = if 0 > b then 0 else b
+
+Or equivalently::
+    
+    maxZero b = max 0 b
+
+Or even::
+
+    maxZero = max 0
+
+You can return multiple results by using a **tuple**, written ``(e1, e2)``::
+
+    minMax a b = (min a b, max a b)
+
+We can use pattern matching in a local binding to get the values out of the tuple::
+
+    absoluteDifference a b = {
+        (minimum, maximum) = minMax a b
+        maximum - minimum
+    }
+
+Tuples can contain a fixed number of elements with different types. 
+Another useful data structure is the list, which can contain any number of elements of the same type::
+
+    numbers = [1, 2, 3, 4, 5]
+
+You may use comprehensions to generate lists, for example::
+
+    squaredNumbers = {
+        n <- numbers
+        guard (n >= 3)
+        return (n * n)
+    }
+    
+    squaredNumbers == [9, 16, 25]
+
+You can read the comprehension like this, line by line:
+
+- For each ``n`` in ``numbers``
+- where ``n >= 3``
+- generate an element ``n * n``
+
+You can have any number of ``<-`` that you want. For example, say you wanted to generate a truth table for logical ``and``::
+
+    andTable = {
+        x <- [False, True]
+        y <- [False, True]
+        return (x, y, x and y)
+    }
+    
+    andTable == [
+        (False, False, False),
+        (False, True,  False),
+        (True,  False, False),
+        (True,  True,  True)
+    ]
+
+Data types
+==========
+
+You can define your own data types. For starters, here's how the ``Bool`` data type is specified in the standard library::
+
+    data Bool {
+        True
+        False
+    }
+
+You may compare this to the ``enum`` keyword from Java or a similar language. 
+It allows you to list a number of **tags**, and instances of the type (eg. ``Bool``) has exactly one tag (eg. ``True`` or ``False``).
+You can pattern match on these values::
+
+    choose a b c = switch a \{
+        True -> b
+        False -> c
+    }
+
+This may look a little bit like the Java ``switch`` keyword, but ``switch`` is simply a function defined as::
+
+    switch x f = f x
+
+All the magic lies in the pattern matching lambda syntax ``\{ ... }``. 
+Each case is signified by an arrow ``->`` leading from the pattern to the expression that is to be evaluated if the pattern matches.
+With the definition above, we have::
+
+    choose True b c == b
+    choose False b c == c
+
+Note that we never required anything of ``b`` and ``c``. 
+In fact, they could have any type and the function would still work.
+We thus have a **polymorphic** function, in the sense that it works for multiple types. 
+We can write this type down explicitly using lower case identifiers for such type variables::
+
+    choose : Bool -> t -> t -> t
+
+Note that we have stated that the type of ``b`` and ``c`` should be equal, since the function would otherwise return different types depending on whether or not ``a`` was true or false, which we can't always know at compile time.
+
+The ``choose`` function is similar to ``if a then b else c``, except that the syntax is different and that all the arguments are always evaluated, regardless of the condition. 
+We will return to define the actual ``if a then b else c`` with appropriate syntax, semantcs and type later.
+
+The construct does much more than simply enabling enumerations, since each tag can have arguments. 
+For example, here's simplified definition of (non-empty) ``String`` from the standard library::
+
+    data String {
+        Single Char
+        Concat String String
+    }
+    
+This says that a ``String`` is either a ``Single Char``, or a ``Concat`` of two ``Strings``. 
+You can take the string syntax::
+
+    foo = "Foo"
+
+To mean::
+
+    foo = Concat (Character 'F') (Concat (Character 'o') (Character 'o'))
+
+And the string concatenation operator can be taken to mean::
+
+    a ++ b = Concat a b
+
+Then we can implement ``size``::
+
+    size = \{
+        Single _ -> 1
+        Concat s1 s2 -> size s1 + size s2
+    }
+
+We use the underscore as a wildcard here, since we don't need to know the actual character.
+If we wanted to only match a specific character, eg. 'c', we could write ``Single 'c'`` instead, though it wouldn't make much sense in this example.
+
+Note that the actual ``String`` implementation is a bit more clever, and both ``++`` and ``size`` are constant time operations, and everything else is at most linear time in the size of the string.
+
+As in most functional languages, there is no such thing as Java's ``null`` in Keen. 
+Instead, when a value may be absent, we use the ``Maybe`` type, which is either just a value or nothing.
+For ``Bool`` we could define it as::
+
+    data Maybe {
+        Just Bool
+        Nothing
+    }
+
+Then we could write code like::
+
+    parseBool = \{
+        "True" -> Just True
+        "False" -> Just False
+        _ -> Nothing
+    }
+
+    parseBool "True" == Just True
+    parseBool "False" == Just False
+    parseBool "quux" == Nothing
+
+However, then we'd probably also want a ``Maybe`` for ``String``, ``Float`` and so on.
+Luckily, type constructors can be polymorphic, so we can define all of these once and for all::
+
+    data Maybe a {
+        Just a
+        Nothing
+    }
+
+Before ``parseBool`` would have the type ``String -> Maybe``, but with this definition it has the type ``String -> Maybe Bool``.
+We can also write functions that work for all ``Maybe a`` types::
+
+    default d m = switch m \{
+        Just v -> v
+        Nothing -> d
+    }
+
+    default 7 Nothing == 7
+    default 7 (Just 2) == 2
+
+Note how we captured the value from ``Just`` into the ``v`` variable.
+
+Records
+-------
+
+We can introduce a record type with the ``record`` keyword::
+
+    record Point {
+        x : Float
+        y : Float
+    }
+
+This defines a record called ``Point`` with the fields ``x`` and ``y`` both of type ``Float``.
+
+You can construct a record by specifying all its fields::
+
+    point1 = Point (x = 0.5, y = 1.2)
+
+And you can update it by specifying new values for one or more fields::
+
+    point2 = point1 (y = 0.1)
+    
+    point2 == Point (x = 0.5, y = 0.1)
+
+The fields can be accessed by applying the labels::
+
+    magnitude p = sqrt ((x p)^2 + (y p)^2)
+
+This may seem reversed when comparing to Java's ``p.x`` and ``p.y``.
+The reason is that labels like ``x`` and ``y`` are simply ordinary functions of the types::
+
+    x : Point -> Float
+    y : Point -> Float
+
+You may also use the qualified names::
+
+    magnitude p = sqrt ((Point.x p)^2 + (Point.y p)^2)
+
+This is especially useful when multiple records use the same label names.
+
+Records may have polymorphic fields. For example, you may want to pass around a polymorphic function::
+
+    record Identity {
+        identity : a -> a
+    }
+
+Polymorphic fields are somewhat similar to **generic methods** in Java. 
+We will return to the benefit of this when discussing type classes.
+
+Operators
+=========
+
+You can define new operators by using the ``operator`` keyword::
+
+    operator _!=_
+    
+This introduces the ordinary symbol ``_!=_`` and the binary infix operator ``!=``.
+The underscores mark operand positions.
+We must then define the operator::
+
+    a != b = not (a == b)
+
+Or equivalently::
+
+    _!=_ a b = not (a == b)
+
+Operators enable delaying evaluation of the operands, by using double underscores instead of single underscores.
+Consider the logical ``and`` operator; in most languages, the second argument is evaluated only when the first argument is ``True``.
+We can achieve this by marking the second operand as delayed::
+
+    operator _and__
+    
+This simply means that whenever the ``and`` operator is used, the second operand will be delayed by wrapping it into a lambda function.
+Thus we have the following::
+
+    x and y == _and__ x (\() -> y)
+
+The right hand side is complicated due to the explicit delaying ``(\() -> y)`` which is implicit on the left hand side.
+
+We can define the short circuiting logical ``and`` as::
+
+    x and y = switch x \{
+        True -> y ()
+        False -> False
+    }
+
+With this in place, we can define the ``if`` statement with familiar syntax and semantics::
+
+    operator if_then__else__
+
+Note that the second and third operands are delayed.
+Hence the definition::
+    
+    if a then b else c = switch a \{
+        True -> b ()
+        False -> c ()
+    }
+    
+We can use it in expressions::
+
+    max a b = if (a >= b) then a else b
+
+The parenthesis are a perhaps superfluous, and we can eliminate them by specifying precedence::
+
+    operator if_then__else__ {
+        < _>=_ _+_
+    }
+    
+This means "the ``if_then__else__`` operator has lower precedence than the ``_>=_`` and the ``_+_`` operator".
+Similarly, you may use ``=`` and ``>`` to indicate identical or higher precedence respectively.
+You can now write the example without parenthesis::
+
+    max a b = if a >= b then a else b
+
+Left associative and right associative operators are introduced with ``operatorleft`` and ``operatorright`` respectively.
+
+Type classes
+============
+
+::
+
+    class Show a {
+        show : a -> a
+    }
+
+    instance Show Bool {
+        show = \{
+            True -> "True"
+            False -> "False"
+        }
+    }
+
+    class Num a = Add a, Mult a
+
+    : {Show a} a -> IO ()
+    print v = putStrLn (show v)
+
+Macros
+======
+
+A macro is simply a function that takes a string and produces some definitions using the Macro monad::
+
+    derive : String -> Macro ()
+
+Syntactically, a macro is invoked at toplevel using curly braces around the symbol referring to the macro function::
+
+    {derive} Show for Bool
+
+    {html} page =
+        <!doctype html>
+        <html>
+            <head><title>Foo</title></head>
+            <body>Bar</body>
+        </html>
+
+The string parameter is simply the rest of the line and every following line until the first non-empty non-indented line or the end of the file.
+
+The ``Macro`` monad is an instance of ``MonadIO``, so arbitrary I/O is allowed. 
+Special functions are available in the ``Macro`` monad that can mark files as dependencies, so that they will be taken into account when considering what to recompile.
+
+Definitions before a macro invocation cannot refer to definitions after that macro invocation.
+
+All the type information for definitions above a macro is available to that macro.
+
+Modules
+=======
+
+Modules in Keen are tied to file names. 
+The source code for a module called ``data.map`` must reside in a directory called ``data`` and be called ``map.keen``, eg:
+
+===================     ========================
+Module name             File name (relative)
+===================     ========================
+base                    base.keen
+data.map                data/map.keen
+language.json.macro     language/json/macro.keen
+===================     ========================
+
+Module names and the corresponding file names must be all lowercase, alphanumeric (except for the single dot) and start with a letter.
+
+Importing symbols
+-----------------
+
+You can import symbols from a module into your namespace, qualified by the module name by using the syntax::
+
+    import data.map
+    
+You can then access these symbols by prefixing the package name with a dot::
+
+    numberNames = data.map.fromList [
+        (1, "One"),
+        (2, "Two"),
+        (3, "Three")
+    ]
+
+If the module name is inconvenient to type, you can rename it like this::
+
+    import m = data.map
+    
+    numberNames = m.fromList [ /* ... */ ]
+
+You can also import specific symbols unqualified, like this::
+
+    import data.map (fromList)
+    
+    numberNames = fromList [ /* ... */ ]
+
+Or simply import every symbol unqualified using a wildcard, like this::
+
+    import data.map (_)
+    
+    numberNames = fromList [ /* ... */ ]
+
+Sometimes different modules define symbols of the same name. 
+Importing two of these unqualified is an error, unless there is exactly one import statement explicitly mentioning the specific symbol, in which case that import takes precedence.
+Definitions in the current module take precedence, but it's an error to explicitly mention a symbol in an import that also has a definition in the current module.
+
+As an example, both ``data.map`` and ``data.set`` export a symbol named ``fromList``. 
+If we need both, we can make sure we get the one from ``data.map`` by explicitly mentioning it::
+
+    import data.map (fromList, _)
+    import data.set (_)
+    
+    numberNames = fromList [ /* ... */ ]
+
+Some definitions such as ``data`` and ``record`` have their own namespace with symbols.
+These are imported by the wildcard imports above, but here's how to explicitly mention them::
+
+    import data.maybe (Maybe)
+
+The above imports unqualified only the ``Maybe`` type constructor.
+
+::
+
+    import data.maybe (Maybe (Just))
+
+The above imports unqualified the ``Maybe`` type constructor and the ``Just`` data constructor, but not ``Nothing``.
+
+::
+
+    import data.maybe (Maybe (_))
+
+The above imports unqualified the ``Maybe`` type constructor and all its data constructors.
+
+Even if you don't import all associated symbols, you can still access them qualified::
+
+    import data.maybe (Maybe)
+    
+    nothing = Maybe.Nothing
+
+You can rename individual symbols too::
+
+    import data.maybe (Option = Maybe)
+    
+    nothing = Option.Nothing
+
+Exporting symbols
+-----------------
+
+You can export symbols from the current module using almost the same syntax as in the imports, but using the ``export`` keyword and no module name::
+
+    export (increase, Bool (_))
+    
+    increase x = x + 1
+    
+    data Bool {
+        True
+        False
+    }
+
+You can also reexport symbols from a different modules as if they were defined in your module::
+
+    export data.map (Map, fromList)
+
+By default, nothing is exported. Only exported symbols can be imported by other modules.
+
