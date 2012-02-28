@@ -560,5 +560,5 @@ Nothing immediately inside the block can be indented less, but continued lines s
 A semicolon will never be inserted immediately within a pair of ``[ ]`` or ``( )`` or ``" "`` and indentation is ignored within these.
 
 A ``Char`` literal is enclosed in a pair of ``' '`` and a ``String`` literal is enclosed in a pair of ``" "``.
-In both cases, there are backslash escapes: ``\" \' \n \t \xXX \uXXXX \UXXXXXX``.
+In both cases, there are backslash escapes: ``\" \' \r \n \t \xXX \uXXXX \UXXXXXX``.
 
