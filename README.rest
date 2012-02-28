@@ -544,13 +544,12 @@ The following symbols are special and cannot be redefined::
 
 The last three mark the beginning of a single line comment, the beginning of a multi line comment and the end of a multi line comment respectively.
 
-There are four lexical classes of symbols:
+There are four lexical classes of symbols that may be redefined (except as described above):
 
 - Math, consisting of one or more of ``!@#$%&/=+?|^*-.:<>``.
 - Lower, consisting of a lowercase English letter (``a``-``z``) followed by any number of English letters and numbers.
 - Upper, consisting of an uppercase English letter (``a``-``z``) followed by any number of English letters and numbers.
 - Module, consisting of a lowercase English letter (``a``-``z``) followed by any number of lowercase English letters and numbers.
-- Separators, consisting of one of ``{}[](),;\``.
 
 Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of 's.
 
