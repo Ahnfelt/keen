@@ -557,6 +557,7 @@ The first non-empty, non-comment line within a pair of ``{ }`` mark the **indent
 A semicolon is inserted before any subsequent lines with the same indentation.
 Nothing immediately inside the block can be indented less, but continued lines should be indented more.
 A semicolon will never be inserted immediately within a pair of ``[ ]`` or ``( )`` or ``" "`` and indentation is ignored within these.
+Please use exactly 4 spaces for all kinds of indentation.
 
 A ``Char`` literal is enclosed in a pair of ``' '`` and a ``String`` literal is enclosed in a pair of ``" "``.
 In both cases, there are backslash escapes: ``\" \' \r \n \t \xXX \uXXXX \UXXXXXX``. 
