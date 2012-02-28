@@ -567,3 +567,6 @@ The next one is the tabulator character.
 The next three are Unicode literals, with 2, 4 and 6 hexadecimal places respectively, as marked by the ``X``es.
 Multiline strings are allowed.
 
+Number literals may be a single integer (one or more of ``0``-``9``), or an integer followed by a ``.`` and another integer, marking a float,
+or any of the previous two followed by ``E`` or ``e`` (and optionally a sign ``+`` or ``-``) followed by an integer.
+
