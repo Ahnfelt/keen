@@ -552,7 +552,7 @@ There are four lexical classes of symbols:
 - Module, consisting of a lowercase English letter (``a``-``z``) followed by any number of lowercase English letters and numbers.
 - Separators, consisting of one of ``{}[](),;\``.
 
-Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of ``'``s.
+Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of 's.
 
 The first non-empty, non-comment line within a pair of ``{ }`` mark the **indentation level** of that block.
 A semicolon is inserted before any subsequent lines with the same indentation.
