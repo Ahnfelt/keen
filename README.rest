@@ -553,7 +553,7 @@ There are four lexical classes of symbols that may be redefined (except as descr
 
 Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of 's.
 
-The first non-empty, non-comment line within a pair of ``{ }`` mark the **indentation level** of that block.
+The first non-empty, non-comment line within a pair of ``{ }`` mark the **indentation level** of that block (if on the same line as the ``{`` there is anything else, the column that starts on is the indentation level).
 A semicolon is inserted before any subsequent lines with the same indentation.
 Nothing immediately inside the block can be indented less, but continued lines should be indented more.
 A semicolon will never be inserted immediately within a pair of ``[ ]`` or ``( )`` or ``" "`` and indentation is ignored within these.
