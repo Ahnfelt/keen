@@ -552,6 +552,7 @@ There are four lexical classes of symbols that may be redefined (except as descr
 - Module, consisting of a lowercase English letter (``a``-``z``) followed by any number of lowercase English letters and numbers.
 
 Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of 's.
+Please use "camelCase" when naming operators (that is, uppercase the first letter of every word) and avoid abbreviations unless they're common outside Computer Science (DVD is fine, "str" is not).
 
 The first non-empty, non-comment line within a pair of ``{ }`` mark the **indentation level** of that block (if on the same line as the ``{`` there is anything else, the column that starts on is the indentation level).
 A semicolon is inserted before any subsequent lines with the same indentation.
