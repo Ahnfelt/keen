@@ -530,8 +530,8 @@ You can also reexport symbols from a different modules as if they were defined i
 
 By default, nothing is exported. Only exported symbols can be imported by other modules.
 
-Reserved symbols
-================
+Syntax
+======
 
 The following symbols are special and cannot be redefined::
 
@@ -546,11 +546,19 @@ The last three mark the beginning of a single line comment, the beginning of a m
 
 There are four lexical classes of symbols:
 
-- Math, consisting of one or more of `!@#$%&/=+?|^*-.:<>`.
-- Lower, consisting of a lowercase English letter (`a`-`z`) followed by any number of English letters and numbers.
-- Upper, consisting of an uppercase English letter (`a`-`z`) followed by any number of English letters and numbers.
-- Module, consisting of a lowercase English letter (`a`-`z`) followed by any number of lowercase English letters and numbers.
-- Separators, consisting of one of `{}[](),\`.
+- Math, consisting of one or more of ``!@#$%&/=+?|^*-.:<>``.
+- Lower, consisting of a lowercase English letter (``a``-``z``) followed by any number of English letters and numbers.
+- Upper, consisting of an uppercase English letter (``a``-``z``) followed by any number of English letters and numbers.
+- Module, consisting of a lowercase English letter (``a``-``z``) followed by any number of lowercase English letters and numbers.
+- Separators, consisting of one of ``{}[](),\``.
 
 Additionally, underscores may (only) be part of operator names as described in the operator section.
+
+The first non-empty, non-comment line within a pair of ``{ }`` mark the **indentation level** of that block.
+A semicolon is inserted before any subsequent lines with the same indentation.
+Nothing immediately inside the block can be indented less, but continued lines should be indented more.
+A semicolon will never be inserted immediately within a pair of ``[ ]`` or ``( )`` or ``" "`` and indentation is ignored within these.
+
+A ``Char`` literal is enclosed in a pair of ``' '`` and a ``String`` literal is enclosed in a pair of ``" "``.
+In both cases, there are backslash escapes: ``\" \' \n \t \xXX \uXXXX \UXXXXXX``.
 
