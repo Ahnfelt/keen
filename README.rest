@@ -550,7 +550,7 @@ There are four lexical classes of symbols:
 - Lower, consisting of a lowercase English letter (``a``-``z``) followed by any number of English letters and numbers.
 - Upper, consisting of an uppercase English letter (``a``-``z``) followed by any number of English letters and numbers.
 - Module, consisting of a lowercase English letter (``a``-``z``) followed by any number of lowercase English letters and numbers.
-- Separators, consisting of one of ``{}[](),\;``.
+- Separators, consisting of one of ``{}[](),;\``.
 
 Additionally, underscores may (only) be part of operator names as described in the operator section.
 
