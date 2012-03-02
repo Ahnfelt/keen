@@ -526,7 +526,6 @@ The following symbols are special and cannot be redefined::
     import export
     data record type class instance
     operator operatorleft operatorright
-    { } [ ] ( ) 
     , . _ = -> <- : \
     // /* */
 
