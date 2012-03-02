@@ -26,7 +26,7 @@ Downloading some.package.2.0.0 (45 KiB of 45 KiB)
 Building some.package.2.0.0 (100%)
 
 > keen uninstall some.package
-Removed some.package.1.0.4, 2.0.0
+Removed some.package.1.0.4, 2.0.0.
 
 > keen link
 Other linked packages will now always use the up-to-date version of my.package from this directory,
@@ -95,14 +95,23 @@ joakim.ahnfelt@gmail.com
 
 > ls $KEEN/packages
 base
-text.parsec
+text.parser.combinator
 
-> ls $KEEN/packages/text.parsec
+> ls $KEEN/packages/parser.combinator
 0.0.5
 0.0.6
-link -> /home/ahnfelt/Projects/keen/parsec
+link -> /home/ahnfelt/Projects/keen/parser.combinator
+release.0.0.5
+release.0.0.6
+
+> cat $KEEN/packages/text.parser.combinator/release.0.0.6
+https://packages.keenlanguage.org/
+joakim.ahnfelt@gmail.com
+text.parser.combinator
+0.0.6
+cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e
 
 > cat $KEEN/versions
 base 0.0.2 0.0.1 0.0.0 
-text.parsec 0.0.6 0.0.5 0.0.4 0.0.3 0.0.2 0.0.1 0.0.0
+text.parser.combinator 0.0.6 0.0.5 0.0.4 0.0.3 0.0.2 0.0.1 0.0.0
 

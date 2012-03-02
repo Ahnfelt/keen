@@ -1,8 +1,12 @@
+module Main where
+
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Control.Monad.State
+import Debug.Trace (trace, traceShow)
+import Data.List (intercalate)
 
 type Name = String
 type Environment = Map Name Value
@@ -57,8 +61,9 @@ data Type
 
 data TypeState = TypeState {
     next :: Int,
-    variables :: Map Name Type
-    }
+    variables :: Map Name Type,
+    errors :: [String]
+    } deriving Show
     
 data Forall = Forall [Name] Type
     deriving Show
@@ -97,8 +102,9 @@ unifyVariable x t = do
     t' <- resolveType t
     when (x' /= t') $ case x' of
         FlexibleType x'' -> do
-            when (occurs x'' t') $ error ("Infinite type in main at line 5, column 10.")
-            modify (\state -> state { variables = Map.insert x'' t' (variables state) })
+            if occurs x'' t'
+                then report ("Infinite type in main at line 5, column 10.")
+                else modify (\state -> state { variables = Map.insert x'' t' (variables state) })
         _ -> unify x' t'
 
 unify :: Type -> Type -> State TypeState ()
@@ -112,7 +118,11 @@ unify t1 t2 = case (t1, t2) of
     (FunctionType t1 t2, FunctionType t1' t2') -> do
         unify t1 t1'
         unify t2 t2'
-    (t, t') -> error ("Incompatible types in main at line 5, column 10.\n  Expected:  " ++ show t ++ "\n     Found:  " ++ show t')
+    (t, t') -> report ("Incompatible types in main at line 5, column 10.\n  Expected:  " ++ show t ++ "\n     Found:  " ++ show t')
+
+report :: String -> State TypeState ()
+report problem = do
+    modify (\state -> state { errors = problem : errors state })
 
 freshVariable :: State TypeState Type
 freshVariable = do
@@ -127,10 +137,12 @@ check environment expression = case expression of
         Number _ -> return NumberType
         String _ -> return StringType
         Closure environment' x e -> do
-            when (not (Map.null environment')) $ error "Unexpected closure in main at line 5, column 10."
-            t' <- freshVariable
-            t'' <- check (Map.insert x (Forall [] t') environment) e
-            return (FunctionType t' t'')
+            if not (Map.null environment')
+                then error "Unexpected closure in main at line 5, column 10."
+                else do
+                    t' <- freshVariable
+                    t'' <- check (Map.insert x (Forall [] t') environment) e
+                    return (FunctionType t' t'')
     Variable x -> instantiate (environment Map.! x)
     Annotate e t -> do
         t' <- check environment e
@@ -187,8 +199,18 @@ freeType t = case t of
     FunctionType t1 t2 -> freeType t1 `Set.union` freeType t2
     _ -> Set.empty
 
-typeCheck :: Expression -> Forall
-typeCheck expression = flip evalState (TypeState { next = 1, variables = Map.empty }) $ do
-    t <- check Map.empty expression
-    generalize Map.empty t
+typeCheck :: Expression -> Either String Forall
+typeCheck expression = 
+    let (t, s) = flip runState (TypeState { next = 1, variables = Map.empty, errors = [] }) $ do
+        t <- check Map.empty expression
+        generalize Map.empty t in
+    case errors s of
+        [] -> Right t
+        es -> Left (intercalate "\n" $ reverse es)
+
+typeCheck' :: Expression -> IO ()
+typeCheck' expression = do
+    case typeCheck expression of
+        Right t -> print t
+        Left s -> putStrLn s
 
