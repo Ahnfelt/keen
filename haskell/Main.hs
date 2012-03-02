@@ -1,5 +1,8 @@
 module Main where
 
+import Language.Keen.Syntax
+import Language.Keen.Parser
+
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
@@ -7,24 +10,6 @@ import Data.Set (Set)
 import Control.Monad.State
 import Debug.Trace (trace, traceShow)
 import Data.List (intercalate)
-
-type Name = String
-type Environment = Map Name Value
-
-data Value
-    = Closure Environment Name Expression
-    | Number Double
-    | String String
-    | Unit
-    deriving (Eq, Show, Read)
-
-data Expression
-    = Value Value
-    | Variable Name
-    | Annotate Expression Type
-    | Apply Expression Expression
-    | Let [(Name, Expression)] Expression
-    deriving (Eq, Show, Read)
 
 lambda x e = Value (Closure Map.empty x e)
 
@@ -49,15 +34,6 @@ main = return ()
 -- 2) As long as any subsequence contains a reference to a later 
 --    subsequence, merge these two subsequences and anything in between.
 -- Note that this preserves the binding order, as required by the semantics.
-
-data Type
-    = FlexibleType Name
-    | RigidType Name
-    | FunctionType Type Type
-    | NumberType
-    | StringType
-    | UnitType
-    deriving (Eq, Show, Read)
 
 data TypeState = TypeState {
     next :: Int,
@@ -208,8 +184,8 @@ typeCheck expression =
         [] -> Right t
         es -> Left (intercalate "\n" $ reverse es)
 
-typeCheck' :: Expression -> IO ()
-typeCheck' expression = do
+typeCheckIO :: Expression -> IO ()
+typeCheckIO expression = do
     case typeCheck expression of
         Right t -> print t
         Left s -> putStrLn s
