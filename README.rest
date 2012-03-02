@@ -29,9 +29,9 @@ It comes with a **package system**, and a global package repository is available
 Terms
 =====
 
-Importing symbols from a module is easy. Here we import every symbol (using the underscore as a wildcard) from the ``base`` module::
+Importing symbols from a module is easy. Here we import every symbol (using the underscore as a wildcard) from the ``Base`` module::
 
-    import base (_)
+    import Base (_)
 
 The base module provides a range of standard functionality, such as arithmetic operators, control structures and boolean values.
 
@@ -422,48 +422,36 @@ Modules
 =======
 
 Modules in Keen are tied to file names. 
-The source code for a module called ``data.map`` must reside in a directory called ``data`` and be called ``map.keen``, eg:
+The source code for a module called ``Data.Map`` must reside in a directory called ``Data`` and be called ``Map.keen``, eg:
 
 ===================     ========================
 Module name             File name (relative)
 ===================     ========================
-base                    base.keen
-data.map                data/map.keen
-language.json.macro     language/json/macro.keen
+Base                    Base.keen
+Data.Map                Data/Map.keen
+Language.JSON.Macro     Language/JSON/Macro.keen
 ===================     ========================
 
-Module names and the corresponding file names must be all lowercase, alphanumeric (except for the single dot) and start with a letter.
+Module names and the corresponding file names start with an upper case English letter (a-z) and contain only alphanumeric characters (except for the single dot).
 
 Importing symbols
 -----------------
 
 You can import symbols from a module into your namespace, qualified by the module name by using the syntax::
 
-    import data.map
+    import map = Data.Map
     
-You can then access these symbols by prefixing the package name with a dot::
-
-    numberNames = data.map.fromList [
-        (1, "One"),
-        (2, "Two"),
-        (3, "Three")
-    ]
-
-If the module name is inconvenient to type, you can rename it like this::
-
-    import m = data.map
-    
-    numberNames = m.fromList [ /* ... */ ]
+    numberNames = map.fromList [ /* ... */ ]
 
 You can also import specific symbols unqualified, like this::
 
-    import data.map (fromList)
+    import Data.Map (fromList)
     
     numberNames = fromList [ /* ... */ ]
 
 Or simply import every symbol unqualified using a wildcard, like this::
 
-    import data.map (_)
+    import Data.Map (_)
     
     numberNames = fromList [ /* ... */ ]
 
@@ -474,39 +462,39 @@ Definitions in the current module take precedence, but it's an error to explicit
 As an example, both ``data.map`` and ``data.set`` export a symbol named ``fromList``. 
 If we need both, we can make sure we get the one from ``data.map`` by explicitly mentioning it::
 
-    import data.map (fromList, _)
-    import data.set (_)
+    import Data.Map (fromList, _)
+    import Data.Set (_)
     
     numberNames = fromList [ /* ... */ ]
 
 Some definitions such as ``data`` and ``record`` have their own namespace with symbols.
 These are imported by the wildcard imports above, but here's how to explicitly mention them::
 
-    import data.maybe (Maybe)
+    import Data.Maybe (Maybe)
 
 The above imports unqualified only the ``Maybe`` type constructor.
 
 ::
 
-    import data.maybe (Maybe (Just))
+    import Data.Maybe (Maybe (Just))
 
 The above imports unqualified the ``Maybe`` type constructor and the ``Just`` data constructor, but not ``Nothing``.
 
 ::
 
-    import data.maybe (Maybe (_))
+    import Data.Maybe (Maybe (_))
 
 The above imports unqualified the ``Maybe`` type constructor and all its data constructors.
 
 Even if you don't import all associated symbols, you can still access them qualified::
 
-    import data.maybe (Maybe)
+    import Data.Maybe (Maybe)
     
     nothing = Maybe.Nothing
 
 You can rename individual symbols too::
 
-    import data.maybe (Option = Maybe)
+    import Data.Maybe (Option = Maybe)
     
     nothing = Option.Nothing
 

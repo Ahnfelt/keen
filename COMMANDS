@@ -1,0 +1,108 @@
+> keen release
+Package my.package.0.0.25 is ready for release. Please authenticate:
+E-mail: asdf
+Password (not shown): 
+Unknown e-mail: asdf
+
+> keen release
+Package my.package.0.0.25 is ready for release. Please authenticate:
+E-mail: joakim.ahnfelt@gmail.com
+Password (not shown): 
+Released my.package.0.0.25.
+
+> keen release 1.2.5
+Package my.package.1.2.5 is ready for release. Please authenticate:
+E-mail (joakim.ahnfelt@gmail.com): 
+Password (not shown): 
+Released my.package.1.2.5.
+
+> keen release 2.5.7
+Cannot release my.package.2.5.7 since it depends on the following locally modified linked packages:
+my.other.package
+Please release these packages first and then update the version in this package.
+
+> keen install some.package
+Downloading some.package.2.0.0 (45 KiB of 45 KiB)
+Building some.package.2.0.0 (100%)
+
+> keen uninstall some.package
+Removed some.package.1.0.4, 2.0.0
+
+> keen link
+Other linked packages will now always use the up-to-date version of my.package from this directory,
+(unless changes are listed explicitly, in which case unlisted changes will not be discovered).
+
+> keen unlink
+Other linked packages will now use the installed version(s) of my.package, if any.
+
+> keen update
+Updating the package list (1.2 MiB of 1.2 MiB)
+Building symbol index (100%)
+
+> keen run My.Module some parameters here
+
+> keen build My.Module
+
+> keen shell
+Welcome to the Keen shell (version 0.0.2). Type .help for instructions.
+
+> keen describe some.package
+Package some.package.2.0.0 (other versions: 1.0.4, 0.0.2, 0.0.1, 0.0.0)
+Authority: Joakim Ahnfelt-Rønne <joakim.ahnfelt@gmail.com>
+This package does this and that.
+
+> keen describe Base.first
+From package base.2.1.0
+Base.first : (a, b) -> a
+Extracts the first element of a pair.
+
+> keen find "(a, b) -> a"
+Base.first : (a, b) -> a
+
+> keen foo
+Unknown command: foo
+For instructions, type: keen help
+
+> keen help
+Keen is a strict, pure functional programming language (see keenlanguage.org).
+This program (version 0.0.2) is a compiler and a package manager for it.
+
+    help        - information about a command, for example: keen help run
+    run         - runs a main function (builds it if required)
+    build       - compiles a module and all its dependencies (if required)
+    shell       - start an interactive Keen shell
+    link        - use the local development version of a package
+    unlink      - stop using the local development version of a package
+    install     - install a package
+    uninstall   - uninstall a package
+    release     - release a new version of a package you own
+    describe    - describe a package or a (qualified) symbol
+    find        - search for a symbol by its name or type
+    update      - fetch the latest package list from the repository
+
+Settings are stored in the directory specified by the KEEN environment 
+variable, or if not specified, somewhere in your home directory.
+Please use Semantic Versioning (see semver.org) without pre-release tags
+(instead, you may use version 0.1.x for a prerelease of version 1.y.z).
+
+> cat $KEEN/account
+# You may write your e-mail and password here to avoid typing it every time.
+# For example, if your e-mail/password is foo.bar@example.com/ladyfox99:
+# foo.bar@example.com ladyfox99
+# Beware: everybody with access to this file could read this information.
+# If this file doesn't exist, keen will insert these comments and your e-mail.
+joakim.ahnfelt@gmail.com
+
+> ls $KEEN/packages
+base
+text.parsec
+
+> ls $KEEN/packages/text.parsec
+0.0.5
+0.0.6
+link -> /home/ahnfelt/Projects/keen/parsec
+
+> cat $KEEN/versions
+base 0.0.2 0.0.1 0.0.0 
+text.parsec 0.0.6 0.0.5 0.0.4 0.0.3 0.0.2 0.0.1 0.0.0
+
