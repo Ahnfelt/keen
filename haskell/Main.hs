@@ -14,6 +14,7 @@ import Data.List (intercalate)
 lambda x e = Value (Closure Map.empty x e)
 
 evaluate environment expression = case expression of
+    Unparsed _ _ -> error "Unparsed expressopm"
     Value v -> v
     Variable x -> environment Map.! x
     Annotate e _ -> evaluate environment e
@@ -23,7 +24,7 @@ evaluate environment expression = case expression of
         let environment'' = Map.insert x v (environment' `Map.union` environment) in
         evaluate environment'' e
     Let [] e' -> evaluate environment e'
-    Let ((x, e):bindings) e' ->
+    Let (Binding Nothing x e : bindings) e' ->
         let v = evaluate environment e in
         evaluate (Map.insert x v environment) (Let bindings e')
     
@@ -41,9 +42,6 @@ data TypeState = TypeState {
     errors :: [String]
     } deriving Show
     
-data Forall = Forall [Name] Type
-    deriving Show
-
 resolveVariable :: Name -> State TypeState Type
 resolveVariable x = do
     state <- get
@@ -53,6 +51,7 @@ resolveVariable x = do
 
 resolveType :: Type -> State TypeState Type
 resolveType t = case t of
+    UnparsedType _ _ -> error "Unparsed type"
     FlexibleType x -> resolveVariable x
     RigidType x -> return (RigidType x)
     NumberType -> return NumberType
@@ -65,6 +64,7 @@ resolveType t = case t of
 
 occurs :: Name -> Type -> Bool
 occurs x t = case t of
+    UnparsedType _ _ -> error "Unparsed type"
     FlexibleType x' -> x == x'
     RigidType x' -> x == x'
     NumberType -> False
@@ -108,6 +108,7 @@ freshVariable = do
 
 check :: Map Name Forall -> Expression -> State TypeState Type
 check environment expression = case expression of
+    Unparsed _ _ -> error "Unparsed expression"
     Value v -> case v of
         Unit -> return UnitType
         Number _ -> return NumberType
@@ -131,12 +132,13 @@ check environment expression = case expression of
         unify e1' (FunctionType e2' e')
         return e'
     Let bindings e -> do
+        mapM_ (\b -> when (bindingType b /= Nothing) (report "Explicit types not yet supported.")) bindings
         ts <- replicateM (length bindings) freshVariable
-        let environment' = Map.fromList (zip (map fst bindings) (map (Forall []) ts))
-        ts' <- mapM (check (Map.union environment' environment)) (map snd bindings)
+        let environment' = Map.fromList (zip (map bindingName bindings) (map (Forall []) ts))
+        ts' <- mapM (check (Map.union environment' environment)) (map bindingExpression bindings)
         mapM_ (uncurry unify) (zip ts ts')
         poly <- mapM (generalize environment) ts
-        let environment'' = Map.fromList (zip (map fst bindings) poly)
+        let environment'' = Map.fromList (zip (map bindingName bindings) poly)
         check (Map.union environment'' environment) e
 
 generalize :: Map Name Forall -> Type -> State TypeState Forall
