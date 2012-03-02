@@ -459,8 +459,8 @@ Sometimes different modules define symbols of the same name.
 Importing two of these unqualified is an error, unless there is exactly one import statement explicitly mentioning the specific symbol, in which case that import takes precedence.
 Definitions in the current module take precedence, but it's an error to explicitly mention a symbol in an import that also has a definition in the current module.
 
-As an example, both ``data.map`` and ``data.set`` export a symbol named ``fromList``. 
-If we need both, we can make sure we get the one from ``data.map`` by explicitly mentioning it::
+As an example, both ``Data.Map`` and ``Data.Set`` export a symbol named ``fromList``. 
+If we need both, we can make sure we get the one from ``Data.Map`` by explicitly mentioning it::
 
     import Data.Map (fromList, _)
     import Data.Set (_)
@@ -514,7 +514,7 @@ You can export symbols from the current module using almost the same syntax as i
 
 You can also reexport symbols from a different modules as if they were defined in your module::
 
-    export data.map (Map, fromList)
+    export Data.Map (Map, fromList)
 
 By default, nothing is exported. Only exported symbols can be imported by other modules.
 
