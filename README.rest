@@ -324,12 +324,12 @@ Operators enable delaying evaluation of the operands, by using double underscore
 Consider the logical ``and`` operator; in most languages, the second argument is evaluated only when the first argument is ``True``.
 We can achieve this by marking the second operand as delayed::
 
-    operator _and__
+    operator _and\_
     
 This simply means that whenever the ``and`` operator is used, the second operand will be delayed by wrapping it into a lambda function.
 Thus we have the following::
 
-    x and y == _and__ x (\() -> y)
+    x and y == _and\_ x (\() -> y)
 
 The right hand side is complicated due to the explicit delaying ``(\() -> y)`` which is implicit on the left hand side.
 
@@ -342,7 +342,7 @@ We can define the short circuiting logical ``and`` as::
 
 With this in place, we can define the ``if`` statement with familiar syntax and semantics::
 
-    operator if_then__else__
+    operator if_then\_else\_
 
 Note that the second and third operands are delayed.
 Hence the definition::
@@ -358,11 +358,11 @@ We can use it in expressions::
 
 The parenthesis are a perhaps superfluous, and we can eliminate them by specifying precedence::
 
-    operator if_then__else__ {
+    operator if_then\_else\_ {
         < _>=_ _+_
     }
     
-This means "the ``if_then__else__`` operator has lower precedence than the ``_>=_`` and the ``_+_`` operator".
+This means "the ``if_then\_else\_`` operator has lower precedence than the ``_>=_`` and the ``_+_`` operator".
 Similarly, you may use ``=`` and ``>`` to indicate identical or higher precedence respectively.
 You can now write the example without parenthesis::
 
