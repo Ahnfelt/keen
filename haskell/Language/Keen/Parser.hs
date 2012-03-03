@@ -28,8 +28,8 @@ checkSemicolon :: Parser a -> Parser a
 checkSemicolon m = do
     state <- getState
     if parserSemicolon state
-        then m
-        else fail "Unexpected semicolon inserted due to indentation"
+        then fail "Unexpected semicolon inserted due to indentation"
+        else m
 
 parseIgnorable = do
     -- TODO: If there is an indentation level, use it to insert ';'
@@ -125,7 +125,7 @@ parseDelayingOperator parseSymbol = checkSemicolon $ do
     w <- optionMaybe parseWildcard
     sws <- many1 (try (do s <- parseSymbol; w <- parseWildcard; return (s, w)))
     s <- option "" parseSymbol
-    let name = (if w == Nothing then "" else "_") ++ concatMap ((++ "_") . fst) sws ++ s
+    let name = (if w == Nothing then "" else "_") ++ concatMap (\(s, w) -> s ++ if w then "__" else "_") sws ++ s
     let delays = fromMaybe [] (fmap (:[]) w) ++ map snd sws
     let symbols = map fst sws ++ if s /= "" then [s] else []
     let suffix = ((w /= Nothing) : repeat True)

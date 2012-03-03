@@ -362,7 +362,7 @@ The parenthesis are a perhaps superfluous, and we can eliminate them by specifyi
         < _>=_ _+_
     }
     
-This means "the ``if_then_else_`` operator has lower precedence than the ``_>=_`` and the ``_+_`` operator".
+This means "the ``if_then__else__`` operator has lower precedence than the ``_>=_`` and the ``_+_`` operator".
 Similarly, you may use ``=`` and ``>`` to indicate identical or higher precedence respectively.
 You can now write the example without parenthesis::
 
