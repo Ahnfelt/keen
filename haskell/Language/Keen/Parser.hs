@@ -18,7 +18,7 @@ reserved = [
     "import", "export",
     "data", "type", "class", "object",
     "operator", "operatorleft", "operatorright",
-    ".", "_", "=", "->", "<-", ":", "\\",
+    ".", "=", "->", "<-", ":", "\\",
     "//", "/*", "*/"   
     ]
 

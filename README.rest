@@ -574,7 +574,7 @@ The following symbols are special and cannot be redefined::
     import export
     data type class object
     operator operatorleft operatorright
-    . _ = -> <- : \
+    . = -> <- : \
     // /* */
 
 The last three mark the beginning of a single line comment, the beginning of a multi line comment and the end of a multi line comment respectively.
