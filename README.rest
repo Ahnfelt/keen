@@ -583,12 +583,11 @@ Additionally, following characters are special, but cannot be part of symbols an
 
     { } [ ] ( ) _ , ;
 
-There are four lexical classes of symbols that may be redefined (except as described above):
+There are three lexical classes of symbols that may be redefined (except as described above):
 
 - Math, consisting of one or more of ``!@#$%&/=+?|^*-.:<>``.
 - Lower, consisting of a lowercase English letter (``a``-``z``) followed by any number of English letters and numbers.
 - Upper, consisting of an uppercase English letter (``a``-``z``) followed by any number of English letters and numbers.
-- Module, consisting of a lowercase English letter (``a``-``z``) followed by any number of lowercase English letters and numbers.
 
 Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of 's.
 Please use "camelCase" when naming operators (that is, uppercase the first letter of every word) and avoid abbreviations.
