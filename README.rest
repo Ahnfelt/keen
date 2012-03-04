@@ -426,6 +426,19 @@ And these can be supplied when instantiating the class with the following syntax
     
 The semicolon syntax before the dot can be used here as well.
 
+You can provide implicit definitions for ordinary datatypes too::
+
+    object Maybe a = Nothing
+    
+And you can get the value of an implicit instance by using the underscore::
+
+    switch _ \{
+        Just v -> print "Something"
+        Nothing -> print "Nothing"
+    }
+
+In the above example, the underscore is inferred to have the type ``Maybe a``, so it'll find our instance and print ``Nothing``.
+
 Macros
 ======
 
