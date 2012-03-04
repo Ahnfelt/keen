@@ -385,7 +385,7 @@ This is useful when defining type classes::
 
     class Monad m {
         return : a -> m a
-        _>>=_ : m a -> (a -> m b) -> m b
+        _>>=_  : m a -> (a -> m b) -> m b
     }
     
 Note that ``m`` here has the kind ``_ -> _``, which is evident from the fact that it's applied to type parameters in the method types.
