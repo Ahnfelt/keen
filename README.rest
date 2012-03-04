@@ -487,9 +487,9 @@ Importing symbols
 
 You can import symbols from a module into your namespace, qualified by the module name by using the syntax::
 
-    import map = Data.Map
+    import Map = Data.Map
     
-    numberNames = map.fromList [ /* ... */ ]
+    numberNames = Map.fromList [ /* ... */ ]
 
 You can also import specific symbols unqualified, like this::
 
