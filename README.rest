@@ -322,8 +322,8 @@ You can now write the example without parenthesis::
 
 Left associative and right associative operators are introduced with ``operatorleft`` and ``operatorright`` respectively.
 
-Type classes
-============
+Type classes and implicit arguments
+===================================
 
 You can define a class as follows::
 
