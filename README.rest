@@ -579,6 +579,10 @@ The following symbols are special and cannot be redefined::
 
 The last three mark the beginning of a single line comment, the beginning of a multi line comment and the end of a multi line comment respectively.
 
+Additionally, following characters are special, but cannot be part of symbols anyway (except for the underscore in operators)::
+
+    { } [ ] ( ) _ , ;
+
 There are four lexical classes of symbols that may be redefined (except as described above):
 
 - Math, consisting of one or more of ``!@#$%&/=+?|^*-.:<>``.
