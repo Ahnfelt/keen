@@ -16,7 +16,7 @@ type Parser a = GenParser Char ParserState a
 
 reserved = [
     "import", "export",
-    "data", "record", "type", "class", "instance",
+    "data", "type", "class", "object",
     "operator", "operatorleft", "operatorright",
     ".", "_", "=", "->", "<-", ":", "\\",
     "//", "/*", "*/"   

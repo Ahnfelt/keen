@@ -482,7 +482,7 @@ If we need both, we can make sure we get the one from ``Data.Map`` by explicitly
     
     numberNames = fromList [ /* ... */ ]
 
-Some definitions such as ``data`` and ``record`` have their own namespace with symbols.
+Some definitions such as ``data`` and ``class`` have their own namespace with symbols.
 These are imported by the wildcard imports above, but here's how to explicitly mention them::
 
     import Data.Maybe (Maybe)
@@ -539,7 +539,7 @@ Syntax
 The following symbols are special and cannot be redefined::
 
     import export
-    data record type class instance
+    data type class object
     operator operatorleft operatorright
     . _ = -> <- : \
     // /* */
