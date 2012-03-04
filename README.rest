@@ -416,6 +416,16 @@ You can supply multiple explicit instances separated by a semicolon before the d
 The search for implicit instances will then prefer the explicitly provided instances. 
 Every explicitly provided instance must be used at least once.
 
+Classes may also have implicit parameters::
+
+    class {Bar} Foo {}
+    
+And these can be supplied when instantiating the class with the following syntax::
+    
+    Bar.object Foo {}
+    
+The semicolon syntax before the dot can be used here as well.
+
 Macros
 ======
 
