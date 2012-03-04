@@ -577,7 +577,7 @@ The following symbols are special and cannot be redefined::
     . = -> <- : \
     // /* */
 
-The last three mark the beginning of a single line comment, the beginning of a multi line comment and the end of a multi line comment respectively.
+The last three mark the beginning of a single line comment, the beginning of a multi line comment and the end of a multi line comment respectively. Multi line comments may be nested.
 
 Additionally, following characters are special, but cannot be part of symbols anyway (except for the underscore in operators)::
 
