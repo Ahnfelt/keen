@@ -13,8 +13,7 @@ Keen is a functional programming language heavily inspired by Haskell, but with 
 - It has **type reconstruction**, meaning that you never have to give an explicit type to variables and functions, except when dealing with the most advanced features of the type system.
 - It is **functional** meaning that functions are simply values, and closures are formed by capturing variables within the lexical scope.
 - It has **pattern matching** and **algebraic datatypes** meaning that you can easily construct, make decisions on and take apart values.
-- It has **records** with **polymorphic fields**, meaning that you can pack up polymorphic values and pass them around. Unlike in Haskell, the same label name can be reused in different records.
-- It has **type classes**, meaning that you can have structured overloading, such as a ``+`` operator that does what you expect for both integers and floating point numbers.
+- It has **type classes**, meaning that you can have structured overloading, such as a ``+`` operator that does what you expect for both integers and floating point numbers. Instances are **first class values** and can be passed around like a record with polymorphic fields.
 - It has **user defined operators**, meaning that you can define your own operators. It uses mixfix, allowing you to define operators like ``if a then b else c``. It even supports a form of **optional lazyness**. Indeed, ``if`` is provided in the standard library, and is not built into the language.
 - It has **monad comprehensions**, allowing a succinct syntax for a broad range of tasks, such as generating lists, performing side effects, and so on.
 - It has a **module system**, with very succinct syntax for importing and exporting symbols.
@@ -256,53 +255,6 @@ We can also write functions that work for all ``Maybe a`` types::
 
 Note how we captured the value from ``Just`` into the ``v`` variable.
 
-Records
--------
-
-We can introduce a record type with the ``record`` keyword::
-
-    record Point {
-        x : Float
-        y : Float
-    }
-
-This defines a record called ``Point`` with the fields ``x`` and ``y`` both of type ``Float``.
-
-You can construct a record by specifying all its fields::
-
-    point1 = Point (x = 0.5, y = 1.2)
-
-And you can update it by specifying new values for one or more fields::
-
-    point2 = point1 (y = 0.1)
-    
-    point2 == Point (x = 0.5, y = 0.1)
-
-The fields can be accessed by applying the labels::
-
-    magnitude p = sqrt ((x p)^2 + (y p)^2)
-
-This may seem reversed when comparing to Java's ``p.x`` and ``p.y``.
-The reason is that labels like ``x`` and ``y`` are simply ordinary functions of the types::
-
-    x : Point -> Float
-    y : Point -> Float
-
-You may also use the qualified names::
-
-    magnitude p = sqrt ((Point.x p)^2 + (Point.y p)^2)
-
-This is especially useful when multiple records use the same label names.
-
-Records may have polymorphic fields. For example, you may want to pass around a polymorphic function::
-
-    record Identity {
-        identity : a -> a
-    }
-
-Polymorphic fields are somewhat similar to **generic methods** in Java. 
-We will return to the benefit of this when discussing type classes.
-
 Operators
 =========
 
@@ -373,23 +325,86 @@ Left associative and right associative operators are introduced with ``operatorl
 Type classes
 ============
 
-::
+You can define a class as follows::
 
     class Show a {
-        show : a -> a
+        show : a -> String
     }
 
-    instance Show Bool {
+This defines the ``Show`` class with one type parameter. We use this class to convert values to strings, like ``.toString()`` in Java.
+We can make an instance for showing ``Bool`` values as follows::
+
+    showBool = object Show Bool {
         show = \{
             True -> "True"
             False -> "False"
         }
     }
 
-    class Num a = Add a, Mult a
+We may then use the methods of the class as follows::
+    
+    : Show a -> a -> IO ()
+    print showInstance v = putStrLn (showInstance.show v)
+
+If we then want to print out a ``Bool`` value, we can write::
+
+    main = print showBool True
+    
+This would print "True" to the console and exit.
+We can also define an **implicit instance** as follows::
+
+    object Show Bool {
+        show = \{
+            True -> "True"
+            False -> "False"
+        }
+    }
+
+And we can define ``print`` differently so that it takes an implicit instance of ``Show`` instead::
 
     : {Show a} a -> IO ()
     print v = putStrLn (show v)
+
+Note how we use the ``show`` method without specifying the instance, since it'll be resolved automatically.
+This means we can use ``print`` without explicitly supplying a the ``Show`` instance::
+
+    main = print True
+    
+The type system will see that the type variable ``a`` is instantiated to ``Bool``, and thus look for the implicit instance ``Show Bool``.
+If it can't find any, or there are multiple implicit instances that fit equally well, it'll complain.
+
+The type parameters can be higher kinded. A kind is a "type of type". For example, we saw ``Maybe a`` before.
+``Maybe`` is a type constructor that expects one parameter, which we can write like this::
+
+    Maybe : _ -> _
+    
+The underscores mean "any type". 
+In other words, ``Maybe`` is a type constructor that when applied to a single type parameter returns a type.
+
+This is useful when defining type classes::
+
+    class Monad m {
+        return : a -> m a
+        _>>=_ : m a -> (a -> m b) -> m b
+    }
+    
+Note that ``m`` here has the kind ``_ -> _``, which is evident from the fact that it's applied to type parameters in the method types.
+Note also that the methods are **polymorphic** in ``a`` and ``b``, similar to how Java has generic methods.
+
+When using the method with an implicit instance, they can be seen as ordinary functions of the type::
+
+    return : {Monad m} a -> m a
+    _>>_   : {Monad m} m a -> (a -> m b) -> m b
+
+Indeed, method names are global. If multiple classes use the same method names, you can access them qualified::
+
+    // Implicit version
+    print v = putStrLn (Show.show v)
+
+    // Explicit version
+    print showInstance v = putStrLn (showInstance.Show.show v)
+
+While this can be inconvenient at times, it serves to help the type inference engine.
 
 Macros
 ======

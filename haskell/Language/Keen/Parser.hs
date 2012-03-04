@@ -22,15 +22,25 @@ reserved = [
     "//", "/*", "*/"   
     ]
 
-math = "!@#$%&/=+?|^*-.:<>"
+math = "!@#$%&/=+?|^*-.:<>\\"
 
-checkSemicolon :: Parser a -> Parser a
-checkSemicolon m = do
+noSemicolon :: Parser a -> Parser a
+noSemicolon m = do
     state <- getState
     if parserSemicolon state
         then fail "Unexpected semicolon inserted due to indentation"
         else m
 
+parseEscapeCode :: Parser Char
+parseEscapeCode =
+    (do string "\\\\"; return '\\') <|>
+    (do string "\\\""; return '"') <|>
+    (do string "\\'"; return '\'') <|>
+    (do string "\\t"; return '\t') <|>
+    (do string "\\r"; return '\r') <|>
+    (do string "\\n"; return '\n') <?>
+    "Invalid escape code"
+    
 parseIgnorable = do
     -- TODO: If there is an indentation level, use it to insert ';'
     many (oneOf " \r\n")
@@ -59,12 +69,12 @@ parseSemicolon = do
                 then return ()
                 else fail "Semicolon expected"
 
-parseReservedLower word = checkSemicolon $ do
+parseReservedLower word = noSemicolon $ do
     string word
     notFollowedBy alphaNum
     parseIgnorable
 
-parseReservedMath word = checkSemicolon $ do
+parseReservedMath word = noSemicolon $ do
     string word
     notFollowedBy (oneOf math)
     parseIgnorable
@@ -73,7 +83,7 @@ parseSpecial word = do
     string word
     parseIgnorable
 
-parseBeginEnd indentation begin end parseInside = checkSemicolon $ do
+parseBeginEnd indentation begin end parseInside = noSemicolon $ do
     string begin
     parseIgnorable
     column <- liftM sourceColumn getPosition
@@ -85,13 +95,50 @@ parseBeginEnd indentation begin end parseInside = checkSemicolon $ do
     string end
     parseIgnorable
     return inside
-    
+
 parseBraces parseInside = parseBeginEnd True "{" "}" parseInside
 parseBrackets parseInside = parseBeginEnd False "[" "]" parseInside
 parseParenthesis parseInside = parseBeginEnd False "(" ")" parseInside
 
+parseIntegral :: (Num a, Read a) => Parser a
+parseIntegral = do
+    ds <- many1 digit
+    parseIgnorable
+    return (read ds)
+
+parseFractional :: (Fractional a, Read a) => Parser a
+parseFractional = do
+    ds <- many1 digit
+    fs <- option "" $ do
+        f <- char '.'
+        fs <- many1 digit 
+        return (f:fs)
+    es <- option "" $ do
+        e <- oneOf "eE"
+        ss <- option "" (do s <- oneOf "+-"; return [s])
+        ds <- many1 digit 
+        return (e:(ss ++ ds))
+    parseIgnorable
+    return (read (ds ++ fs ++ es))
+
+parseCharacter :: Parser Char
+parseCharacter = do
+    char '\''
+    c <- noneOf "'\\" <|> parseEscapeCode
+    char '\''
+    parseIgnorable
+    return c
+
+parseString :: Parser String
+parseString = do
+    char '"'
+    cs <- many $ noneOf "\"\\" <|> parseEscapeCode
+    char '"'
+    parseIgnorable
+    return cs
+
 parseLower :: Parser String
-parseLower = checkSemicolon $ do
+parseLower = noSemicolon $ do
     c <- lower
     cs <- many alphaNum
     as <- many (char '\'')
@@ -99,7 +146,7 @@ parseLower = checkSemicolon $ do
     return ([c] ++ cs ++ as)
 
 parseUpper :: Parser String
-parseUpper = checkSemicolon $ do
+parseUpper = noSemicolon $ do
     c <- upper
     cs <- many alphaNum
     as <- many (char '\'')
@@ -107,13 +154,13 @@ parseUpper = checkSemicolon $ do
     return ([c] ++ cs ++ as)
 
 parseMath :: Parser String
-parseMath = checkSemicolon $ do
+parseMath = noSemicolon $ do
     s <- many1 (oneOf math)
     parseIgnorable
     return s
 
 parseOperator :: Parser String -> Parser String
-parseOperator parseSymbol = checkSemicolon $ do
+parseOperator parseSymbol = noSemicolon $ do
     w <- option "" (string "_")
     ss <- parseSymbol `sepBy1` (char '_')
     w' <- option "" (string "_")
@@ -121,7 +168,7 @@ parseOperator parseSymbol = checkSemicolon $ do
     return (w ++ intercalate "_" ss ++ w')
             
 parseDelayingOperator :: Parser String -> Parser (String, [(String, Fixity)], [Bool])
-parseDelayingOperator parseSymbol = checkSemicolon $ do
+parseDelayingOperator parseSymbol = noSemicolon $ do
     w <- optionMaybe parseWildcard
     sws <- many1 (try (do s <- parseSymbol; w <- parseWildcard; return (s, w)))
     s <- option "" parseSymbol
