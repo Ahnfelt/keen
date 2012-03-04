@@ -366,7 +366,7 @@ And we can define ``print`` differently so that it takes an implicit instance of
     print v = putStrLn (show v)
 
 Note how we use the ``show`` method without specifying the instance, since it'll be resolved automatically.
-This means we can use ``print`` without explicitly supplying a the ``Show`` instance::
+This means we can use ``print`` without explicitly supplying a ``Show`` instance::
 
     main = print True
     
@@ -391,7 +391,7 @@ This is useful when defining type classes::
 Note that ``m`` here has the kind ``_ -> _``, which is evident from the fact that it's applied to type parameters in the method types.
 Note also that the methods are **polymorphic** in ``a`` and ``b``, similar to how Java has generic methods.
 
-When using the method with an implicit instance, they can be seen as ordinary functions of the type::
+The methods can be seen as ordinary functions of the type::
 
     return : {Monad m} a -> m a
     _>>_   : {Monad m} m a -> (a -> m b) -> m b
@@ -405,6 +405,16 @@ Indeed, method names are global. If multiple classes use the same method names, 
     print showInstance v = putStrLn (showInstance.Show.show v)
 
 While this can be inconvenient at times, it serves to help the type inference engine.
+
+You can supply multiple explicit instances separated by a semicolon before the dot::
+
+    : {Show a, Read a} a -> a
+    showRead v = read (show v)
+
+    (myShowInstance; myReadInstance).showRead 42
+    
+Every explicit instance provided must satisfy at least one of the implicit parameters.
+The implicit parameters will be searched for as usual, but giving the explicit instances the highest precedence.
 
 Macros
 ======
