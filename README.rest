@@ -422,7 +422,7 @@ Classes may also have implicit parameters::
     
 And these can be supplied when instantiating the class with the following syntax::
     
-    Bar.object Foo {}
+    myBar.object Foo {}
     
 The semicolon syntax before the dot can be used here as well.
 
