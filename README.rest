@@ -603,7 +603,7 @@ In both cases, there are backslash escapes: ``\" \' \r \n \t \xXX \uXXXX \UXXXXX
 The first two become a literal ``"`` and ``'`` respectively.
 The next two are the ASCII CR and LF codes respectively. 
 The next one is the tabulator character.
-The next three are Unicode literals, with 2, 4 and 6 hexadecimal places respectively, as marked by the ``X``es.
+The next three are Unicode literals, with 2, 4 and 6 hexadecimal places respectively, as marked by the ``X``'es.
 Multiline strings are allowed.
 
 Integer literals consist of one of more of ``0``-``9``. 
