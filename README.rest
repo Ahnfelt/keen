@@ -412,9 +412,9 @@ You can supply multiple explicit instances separated by a semicolon before the d
     showRead v = read (show v)
 
     (myShowInstance; myReadInstance).showRead 42
-    
-Every explicit instance provided must satisfy at least one of the implicit parameters.
-The implicit parameters will be searched for as usual, but giving the explicit instances the highest precedence.
+
+The search for implicit instances will then prefer the explicitly provided instances. 
+Every explicitly provided instance must be used at least once.
 
 Macros
 ======
