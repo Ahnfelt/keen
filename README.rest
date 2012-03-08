@@ -607,5 +607,5 @@ The next three are Unicode literals, with 2, 4 and 6 hexadecimal places respecti
 Multiline strings are allowed.
 
 Integer literals consist of one of more of ``0``-``9``. 
-Floating point literals consist of an integer literal, and then optionally a ``.`` followed by an integer literal, and then optionally an ``E`` or ``e`` (and optionally a sign ``+`` or ``-``) followed by an integer.
+Floating point literals consist of an integer literal, and then optionally a ``.`` followed by an integer literal, and then optionally an ``E`` or ``e`` (and optionally a sign ``+`` or ``-``) followed by an integer literal.
 
