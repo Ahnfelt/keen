@@ -600,7 +600,8 @@ Please use exactly 4 spaces for all kinds of indentation.
 
 A ``Char`` literal is enclosed in a pair of ``' '`` and a ``String`` literal is enclosed in a pair of ``" "``.
 In both cases, there are backslash escapes: ``\\ \" \' \r \n \t \xXX \uXXXX \UXXXXXX``. 
-The first two become a literal ``"`` and ``'`` respectively.
+The first one becomes a literal ``\``.
+The next two become a literal ``"`` and ``'`` respectively.
 The next two are the ASCII CR and LF codes respectively. 
 The next one is the tabulator character.
 The next three are Unicode literals, with 2, 4 and 6 hexadecimal places respectively, as marked by the ``X``'es.
