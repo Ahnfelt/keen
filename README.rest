@@ -560,7 +560,7 @@ You can export symbols from the current module using almost the same syntax as i
         False
     }
 
-You can also reexport symbols from a different modules as if they were defined in your module::
+You can also reexport symbols from a different module as if they were defined in your module::
 
     export Data.Map (Map, fromList)
 
@@ -587,7 +587,7 @@ There are three lexical classes of symbols that may be redefined (except as desc
 
 - Math, consisting of one or more of ``!@#$%&/=+?|^*-.:<>``.
 - Lower, consisting of a lowercase English letter (``a``-``z``) followed by any number of English letters and numbers.
-- Upper, consisting of an uppercase English letter (``a``-``z``) followed by any number of English letters and numbers.
+- Upper, consisting of an uppercase English letter (``A``-``Z``) followed by any number of English letters and numbers.
 
 Additionally, underscores may (only) be part of operator names as described in the operator section, and a Lower or Upper symbol may end with any number of 's.
 Please use "camelCase" when naming operators (that is, uppercase the first letter of every word) and avoid abbreviations.
