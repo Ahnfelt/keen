@@ -443,7 +443,7 @@ Macros
 ======
 
 A macro in Keen is a function that is evaluated at compile time, allowing you to generate parts of your program.
-These are ordinary Keen functions, but take a string and produces some definitions using the Macro monad::
+These are ordinary Keen functions that take a string and produce some definitions using the Macro monad::
 
     derive : String -> Macro ()
 
