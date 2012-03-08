@@ -442,7 +442,8 @@ In the above example, the underscore is inferred to have the type ``Maybe a``, s
 Macros
 ======
 
-A macro is simply a function that takes a string and produces some definitions using the Macro monad::
+A macro in Keen is a function that is evaluated at compile time, allowing you to generate parts of your program.
+These are ordinary Keen functions, but take a string and produces some definitions using the Macro monad::
 
     derive : String -> Macro ()
 
@@ -464,7 +465,7 @@ Special functions are available in the ``Macro`` monad that can mark files as de
 
 Definitions before a macro invocation cannot refer to definitions after that macro invocation.
 
-All the type information for definitions above a macro is available to that macro.
+All the type information for definitions above a macro is available for that macro to inspect.
 
 Modules
 =======
