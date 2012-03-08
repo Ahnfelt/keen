@@ -16,7 +16,7 @@ Keen is a functional programming language heavily inspired by Haskell, but with 
 - It has **type classes**, meaning that you can have structured overloading, such as a ``+`` operator that does what you expect for both integers and floating point numbers. Instances are **first class values** and can be passed around like a record with polymorphic fields.
 - It has **user defined operators**, meaning that you can define your own operators. It uses mixfix, allowing you to define operators like ``if a then b else c``. It even supports a form of **optional lazyness**. Indeed, ``if`` is provided in the standard library, and is not built into the language.
 - It has **monad comprehensions**, allowing a succinct syntax for a broad range of tasks, such as generating lists, performing side effects, and so on.
-- It has a **module system**, with very succinct syntax for importing and exporting symbols.
+- It has a simple **module system**, with very succinct syntax for importing and exporting symbols.
 - It has **macros**, allowing you to write ordinary Keen functions and use them to generate parts of your program.
 
 And that's really all there is to it. There is **no subtyping nor inheritance** to complicate matters. 
