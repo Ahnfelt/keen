@@ -11,10 +11,8 @@ import Control.Monad.State
 import Debug.Trace (trace, traceShow)
 import Data.List (intercalate)
 
-lambda x e = Value (Closure Map.empty x e)
-
 evaluate environment expression = case expression of
-    Unparsed _ _ -> error "Unparsed expressopm"
+    Unparsed _ -> error "Unparsed expressopm"
     Value v -> v
     Variable x -> environment Map.! x
     Annotate e _ -> evaluate environment e
@@ -51,11 +49,12 @@ resolveVariable x = do
 
 resolveType :: Type -> State TypeState Type
 resolveType t = case t of
-    UnparsedType _ _ -> error "Unparsed type"
+    UnparsedType _ -> error "Unparsed type"
     FlexibleType x -> resolveVariable x
     RigidType x -> return (RigidType x)
     NumberType -> return NumberType
     StringType -> return StringType
+    CharacterType -> return CharacterType
     UnitType -> return UnitType
     FunctionType t1 t2 -> do
         t1' <- resolveType t1
@@ -64,11 +63,12 @@ resolveType t = case t of
 
 occurs :: Name -> Type -> Bool
 occurs x t = case t of
-    UnparsedType _ _ -> error "Unparsed type"
+    UnparsedType _ -> error "Unparsed type"
     FlexibleType x' -> x == x'
     RigidType x' -> x == x'
     NumberType -> False
     StringType -> False
+    CharacterType -> False
     UnitType -> False
     FunctionType t1 t2 -> occurs x t1 || occurs x t2
 
@@ -90,6 +90,7 @@ unify t1 t2 = case (t1, t2) of
     (RigidType x, RigidType x') | x == x' -> return ()
     (NumberType, NumberType) -> return ()
     (StringType, StringType) -> return ()
+    (CharacterType, CharacterType) -> return ()
     (UnitType, UnitType) -> return ()
     (FunctionType t1 t2, FunctionType t1' t2') -> do
         unify t1 t1'
@@ -108,11 +109,12 @@ freshVariable = do
 
 check :: Map Name Forall -> Expression -> State TypeState Type
 check environment expression = case expression of
-    Unparsed _ _ -> error "Unparsed expression"
+    Unparsed _ -> error "Unparsed expression"
     Value v -> case v of
         Unit -> return UnitType
         Number _ -> return NumberType
         String _ -> return StringType
+        Character _ -> return CharacterType
         Closure environment' x e -> do
             if not (Map.null environment')
                 then error "Unexpected closure in main at line 5, column 10."

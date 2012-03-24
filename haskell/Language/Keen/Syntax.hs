@@ -16,11 +16,12 @@ data Value
     = Closure Environment Name Expression
     | Number Double
     | String String
+    | Character Char
     | Unit
     deriving (Eq, Show, Read)
 
 data Expression
-    = Unparsed Expression Expression
+    = Unparsed [Expression]
     | Value Value
     | Variable Name
     | Annotate Expression Type
@@ -29,12 +30,13 @@ data Expression
     deriving (Eq, Show, Read)
 
 data Type
-    = UnparsedType Type Type
+    = UnparsedType [Type]
     | FlexibleType Name
     | RigidType Name
     | FunctionType Type Type
     | NumberType
     | StringType
+    | CharacterType
     | UnitType
     deriving (Eq, Show, Read)
 
@@ -47,6 +49,7 @@ data Symbol = Symbol {
     members :: [String],
     implicit :: Bool
     }
+    deriving Show
 
 data Fixity 
     = Prefix 
@@ -59,13 +62,10 @@ data Port = Port {
     package :: String,
     symbols :: [Symbol]
     }
+    deriving Show
 
 data Definition
-    = ValueDefinition {
-        valueType :: Maybe Forall,
-        valueName :: String,
-        valueExpression :: Expression
-    }
+    = ValueDefinition Binding
     | TypeDefinition {
         typeName :: String, 
         typeVariables :: [String], 
@@ -81,15 +81,23 @@ data Definition
         recordTypeVariables :: [String],
         recordFields :: [(String, Forall)]
     }
+    | InstanceDefinition {
+        instanceType :: Forall,
+        instanceExpression :: Expression
+    }
     | OperatorDefinition {
         operatorName :: String ,
         operatorFixity :: [(String, Fixity)],
         operatorDelay :: [Bool] 
     }
+    deriving Show
 
 data Module = Module {
     imports :: [Port],
     exports :: [Port],
     definitions :: [Definition]
-    }
+    } 
+    deriving Show
+
+lambda x e = Value (Closure Map.empty x e)
 
