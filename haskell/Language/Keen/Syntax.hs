@@ -57,6 +57,12 @@ data Fixity
     | Infix 
     deriving (Show, Eq)
 
+data Associativity
+    = NonAssociative
+    | LeftAssociative
+    | RightAssociative
+    deriving Show
+
 data Port = Port {
     alias :: Maybe String,
     package :: String,
@@ -88,7 +94,11 @@ data Definition
     | OperatorDefinition {
         operatorName :: String ,
         operatorFixity :: [(String, Fixity)],
-        operatorDelay :: [Bool] 
+        operatorDelay :: [Bool],
+        operatorAssociativity :: Associativity,
+        operatorPrecedenceLowerThan :: [String],
+        operatorPrecedenceSameAs :: [String],
+        operatorPrecedenceGreaterThan :: [String]
     }
     deriving Show
 

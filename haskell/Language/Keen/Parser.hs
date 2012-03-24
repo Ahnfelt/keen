@@ -211,7 +211,36 @@ parseImportsExports :: Parser ([Port], [Port])
 parseImportsExports = return ([], [])
 
 parseDefinition :: Parser Definition
-parseDefinition = liftM ValueDefinition parseBinding
+parseDefinition = 
+    parseOperatorDefinition <|>
+    liftM ValueDefinition parseBinding
+
+parseOperatorDefinition :: Parser Definition
+parseOperatorDefinition = do
+    associativity <- parseAssociativity
+    (symbol, parts, delays) <- parseDelayingOperator parseSymbol
+    (less, same, greater) <- option ([], [], []) (parseBraces (parsePrecedence [] [] []))
+    return $ OperatorDefinition symbol parts delays associativity less same greater
+    where
+        parseAssociativity = try $ 
+            (parseReservedLower "operator" >> return NonAssociative) <|>
+            (parseReservedLower "operatorleft" >> return LeftAssociative) <|>
+            (parseReservedLower "operatorright" >> return RightAssociative)
+        parsePrecedence less same greater = do
+            f <- optionMaybe $
+                (parseReservedMath "<" >> 
+                    return (\operators -> parsePrecedence (less ++ operators) same greater)) <|>
+                (parseReservedMath "=" >> 
+                    return (\operators -> parsePrecedence less (same ++ operators) greater)) <|>
+                (parseReservedMath ">" >> 
+                    return (\operators -> parsePrecedence less same (greater ++ operators)))
+            case f of
+                Just f -> do
+                    operators <- parseOperator parseSymbol `sepBy1` parseReservedMath ","
+                    f operators
+                Nothing -> return (less, same, greater)
+
+parseSymbol = parseLower <|> parseMath <|> parseUpper
 
 parseBinding :: Parser Binding
 parseBinding = do
@@ -222,14 +251,18 @@ parseBinding = do
     return (Binding a p e)
     
 parseBindingType :: Parser Forall
-parseBindingType = fail "Binding type parser not implemented"
+parseBindingType = do
+    parseReservedMath ":"
+    fail "Binding type parser not implemented"
 
 parsePattern :: Parser String
 parsePattern = parseLower
 
 parseExpression :: Parser Expression
 parseExpression = do
-    unparsed <- many1 (liftM Variable (parseLower <|> parseMath <|> parseUpper) <|> parseLiteral <|> parseBlock)
+    unparsed <- many1 $
+        liftM Variable (parseOperator parseSymbol) <|> 
+        parseLiteral <|> parseParenthesis parseExpression <|> parseBlock
     case unparsed of
         [e] -> return e
         _ -> return (Unparsed unparsed)
@@ -261,13 +294,14 @@ parseLet = do
     return (Let bindings e)
 
 parseBind = do
+    t <- optionMaybe parseBindingType
     p <- try $ do
         p <- parsePattern
         parseReservedMath "="
         return p
     e <- parseExpression
     parseSemicolon
-    return (Binding Nothing p e)
+    return (Binding t p e)
 
 parseMonadSugar = do
     p <- optionMaybe $ try $ do
@@ -275,12 +309,13 @@ parseMonadSugar = do
         parseReservedMath "<-"
         return p
     e <- parseExpression
-    e' <- optionMaybe $ try $ do
-        parseSemicolon
+    e' <- optionMaybe $ do
+        try (parseSemicolon >> notFollowedBy (char '}'))
         parseInsideBlock
     case (p, e') of
         (Nothing, Nothing) -> return e
         (Nothing, Just e') -> return (Apply (Apply (Variable "_>>_") e) e')
         (Just p, Just e') -> return (Apply (Apply (Variable "_>>=_") e) (lambda p e'))
         (Just _, Nothing) -> fail "something after the last bind (<-)"
+
 
