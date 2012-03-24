@@ -174,12 +174,10 @@ parseMath = noSemicolon $ do
 
 parseOperator :: Parser String -> Parser String
 parseOperator parseSymbol = noSemicolon $ do
-    w <- option "" (string "_")
-    ss <- parseSymbol `sepBy1` (char '_')
-    w' <- option "" (string "_")
+    parts <- many1 (parseSymbol <|> string "_")
     parseIgnorable
-    return (w ++ intercalate "_" ss ++ w')
-            
+    return (concat parts)
+
 parseDelayingOperator :: Parser String -> Parser (String, [(String, Fixity)], [Bool])
 parseDelayingOperator parseSymbol = noSemicolon $ do
     w <- optionMaybe parseWildcard
@@ -222,7 +220,7 @@ parseOperatorDefinition = do
     (less, same, greater) <- option ([], [], []) (parseBraces (parsePrecedence [] [] []))
     return $ OperatorDefinition symbol parts delays associativity less same greater
     where
-        parseAssociativity = try $ 
+        parseAssociativity = try $
             (parseReservedLower "operator" >> return NonAssociative) <|>
             (parseReservedLower "operatorleft" >> return LeftAssociative) <|>
             (parseReservedLower "operatorright" >> return RightAssociative)
@@ -237,6 +235,7 @@ parseOperatorDefinition = do
             case f of
                 Just f -> do
                     operators <- parseOperator parseSymbol `sepBy1` parseReservedMath ","
+                    optional parseSemicolon
                     f operators
                 Nothing -> return (less, same, greater)
 
